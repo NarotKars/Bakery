@@ -26,8 +26,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors();
-app.UseHttpsRedirection();
+app.UseRouting();
 app.UseAuthorization();
+app.UseHttpsRedirection();
 app.MapControllers();
+app.UseCors();
 app.Run();
