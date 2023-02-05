@@ -43,26 +43,6 @@ namespace OnlineStore.Controllers
             products.Add(new Product()
             {
                 Id = 4,
-                Container = "cakes",
-                BlobName = "SpicedRum",
-                CategoryId = 1,
-                Price = 20000M,
-                Description = "Spiced Rum, Date, Walnut, Molasses Bundt Cake with Rum Caramel Drizzle"
-            });
-
-            products.Add(new Product()
-            {
-                Id = 5,
-                Container = "cakes",
-                BlobName = "TripleChocolateCake",
-                CategoryId = 1,
-                Price = 25000M,
-                Description = "Dark chocolate cake, ganache, fluffy buttercream and sweet little truffles"
-            });
-
-            products.Add(new Product()
-            {
-                Id = 6,
                 Container = "cookies",
                 BlobName = "MagicalTahiniChocolateChipCookies",
                 CategoryId = 2,
@@ -72,7 +52,7 @@ namespace OnlineStore.Controllers
 
             products.Add(new Product()
             {
-                Id = 7,
+                Id = 5,
                 Container = "cheesecakes",
                 BlobName = "BlackberryAndWhiteChocolateTart",
                 CategoryId = 3,
@@ -82,17 +62,7 @@ namespace OnlineStore.Controllers
 
             products.Add(new Product()
             {
-                Id = 8,
-                Container = "cheesecakes",
-                BlobName = "HoneyCheesecake",
-                CategoryId = 3,
-                Price = 30000M,
-                Description = "Honey-Cheesecake Ice Cream Snowballs with Almond Brittle & Lingonberry Jam"
-            });
-
-            products.Add(new Product()
-            {
-                Id = 9,
+                Id = 6,
                 Container = "cheesecakes",
                 BlobName = "NewYorkCheesecake",
                 CategoryId = 3,
