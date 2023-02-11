@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineStore.Exceptions;
 using OnlineStore.Models;
-using OnlineStore.Repositories;
+using OnlineStore.Services;
 
 namespace OnlineStore.Controllers
 {

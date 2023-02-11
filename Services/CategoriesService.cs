@@ -2,7 +2,7 @@
 using OnlineStore.Models;
 using Dapper;
 
-namespace OnlineStore.Repositories
+namespace OnlineStore.Services
 {
     public class CategoriesService
     {
