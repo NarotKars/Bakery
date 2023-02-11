@@ -21,7 +21,7 @@ namespace OnlineStore.Services
                                             .QuerySingleOrDefaultAsync<int>(sql, new { UserName = user.UserName, PasswordHash = user.PasswordHash }, commandType: CommandType.StoredProcedure);
             if(id == default)
             {
-                throw new RESTException("Invalid user name or password", System.Net.HttpStatusCode.BadRequest);
+                throw new RESTException("Invalid user name or password", System.Net.HttpStatusCode.OK);
             }
 
             return id;
@@ -34,7 +34,7 @@ namespace OnlineStore.Services
                                             .QuerySingleOrDefaultAsync<int>(sql, new { UserName = user.UserName }, commandType: CommandType.StoredProcedure);
             if(id != default)
             {
-                throw new RESTException(string.Format("A user with name {0} already exists", user.UserName), System.Net.HttpStatusCode.BadRequest);
+                throw new RESTException(string.Format("A user with name {0} already exists", user.UserName), System.Net.HttpStatusCode.OK);
             }
 
             sql = "RegisterUser";
