@@ -16,7 +16,7 @@ namespace OnlineStore.Controllers
         }
 
         [HttpGet]
-        public async Task<List<Category>> GetCategoriesAsync()
+        public async Task<IEnumerable<Category>> GetCategoriesAsync()
         {
             return await this.categoriesService.GetCategoriesAsync();
         }

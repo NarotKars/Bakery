@@ -13,11 +13,11 @@ namespace OnlineStore.Repositories
             this.configuration = configuration;
         }
 
-        public async Task<List<Category>> GetCategoriesAsync()
+        public async Task<IEnumerable<Category>> GetCategoriesAsync()
         {
             string sql = "GetCategories";
             return await ConnectionManager.CreateConnection(configuration)
-                                          .ExecuteScalarAsync<List<Category>>(sql, commandType: CommandType.StoredProcedure);
+                                          .QueryAsync<Category>(sql, commandType: CommandType.StoredProcedure);
         }
     }
 }
