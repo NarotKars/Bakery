@@ -5,5 +5,6 @@ namespace OnlineStore.Models
     {
         public List<OrderDetail> OrderDetails { get; set; }
         public int AddressId { get; set; }
+        public OrderStatus Status { get; set; }
     }
 }

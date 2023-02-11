@@ -1,27 +1,24 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using OnlineStore.Exceptions;
 using OnlineStore.Models;
+using OnlineStore.Repositories;
 
 namespace OnlineStore.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
     {
-        public CategoriesController()
+        private readonly CategoriesService categoriesService;
+        public CategoriesController(CategoriesService categoriesRepository)
         {
-
+            this.categoriesService = categoriesRepository;
         }
 
         [HttpGet]
-        public List<Category> GetCategories()
+        public async Task<List<Category>> GetCategoriesAsync()
         {
-            return new List<Category>()
-            {
-                new Category() { Name = "Cakes", Id = 1},
-                new Category() { Name = "Cookies", Id = 2},
-                new Category() { Name = "Cheesecakes", Id = 3},
-            };
+            return await this.categoriesService.GetCategoriesAsync();
         }
     }
 }

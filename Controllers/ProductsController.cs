@@ -4,7 +4,7 @@ using OnlineStore.Models;
 namespace OnlineStore.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
         private List<Product> products = new List<Product>();

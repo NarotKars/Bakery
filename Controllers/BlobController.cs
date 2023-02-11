@@ -3,10 +3,10 @@
 namespace OnlineStore.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class BlobController : ControllerBase
     {
-        const string baseUrl = "https://bakery9.blob.core.windows.net";
+        private const string baseUrl = "https://bakery9.blob.core.windows.net";
         public BlobController()
         {
 

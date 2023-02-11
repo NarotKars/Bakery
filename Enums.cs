@@ -1,7 +1,8 @@
 ﻿namespace OnlineStore.Enums
 {
-    public enum Status
+    public enum OrderStatus
     {
+        NotOrdered,
         InProgress,
         Delivered,
         Canceled
