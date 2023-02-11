@@ -22,7 +22,7 @@ namespace OnlineStore.Controllers
             return await this.productsService.GetProducts();
         }
 
-        [HttpGet("categoryId")]
+        [HttpGet("{categoryId}")]
         public async Task<IEnumerable<Product>> GetProductsByCategoryId(int categoryId)
         {
             return await this.productsService.GetProductsByCategoryId(categoryId);

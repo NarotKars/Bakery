@@ -21,6 +21,7 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddScoped<CategoriesService>();
 builder.Services.AddScoped<ProductsService>();
+builder.Services.AddScoped<UsersService>();
 builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 
 var app = builder.Build();

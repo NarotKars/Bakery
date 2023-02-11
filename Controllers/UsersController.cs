@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineStore.Models;
+using OnlineStore.Services;
 
 namespace OnlineStore.Controllers
 {
@@ -7,16 +8,22 @@ namespace OnlineStore.Controllers
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        public UsersController()
+        private readonly UsersService usersService;
+        public UsersController(UsersService usersService)
         {
-
+            this.usersService = usersService;
         }
 
-        [HttpPost("Login")]
-        public int Login(User user)
+        [HttpPost("register")]
+        public async Task<int> Register(User user)
         {
-            //returns the id of the user
-            return 1;
+            return await this.usersService.Register(user);
+        }
+
+        [HttpPost("login")]
+        public async Task<int> Login(User user)
+        {
+            return await this.usersService.Login(user);
         }
     }
 }
