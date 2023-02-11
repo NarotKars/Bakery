@@ -19,7 +19,7 @@ namespace OnlineStore
             }
             catch(RESTException e)
             {
-                context.Response.StatusCode = (int)HttpStatusCode.NoContent;
+                context.Response.StatusCode = (int)e.StatusCode;
                 await context.Response.WriteAsync(e.Message);
             }
             catch (AggregateException e)

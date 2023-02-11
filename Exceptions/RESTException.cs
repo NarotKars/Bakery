@@ -4,8 +4,10 @@ namespace OnlineStore.Exceptions
 {
     public class RESTException : Exception
     {
-        public RESTException(string message) : base(message)
+        public HttpStatusCode StatusCode { get; private set; }
+        public RESTException(string message, HttpStatusCode statusCode) : base(message)
         {
+            this.StatusCode = statusCode;
         }
     }
 }
