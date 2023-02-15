@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineStore.Models;
+using OnlineStore.Services;
 
 namespace OnlineStore.Controllers
 {
@@ -7,26 +8,26 @@ namespace OnlineStore.Controllers
     [Route("api/[controller]")]
     public class OrderDetailsController : ControllerBase
     {
-        public OrderDetailsController()
+        private readonly OrdersService ordersService;
+        public OrderDetailsController(OrdersService ordersService)
         {
-
+            this.ordersService = ordersService;
         }
 
-        [HttpGet("{id}")]
-        public List<OrderDetail> GetOrderDetails()
+        [HttpGet("{orderId}")]
+        public async Task<List<OrderDetail>> GetOrderDetails(int orderId)
         {
-            List<OrderDetail> orderDetails = new List<OrderDetail>();
-            return orderDetails;
+            return await this.ordersService.GetOrderDetails(orderId);
         }
 
         [HttpPost("Add/{orderId}")]
-        public ActionResult AddOrderDetail(OrderDetail orderDetail)
+        public async Task AddOrderDetail(int orderId, OrderDetail orderDetail)
         {
-            return Ok("Your product is successfully added to the order");
+            await this.ordersService.AddOrderDetail(orderId, orderDetail, true);
         }
 
         [HttpDelete("Remove/{orderId}")]
-        public ActionResult RemoveOrderDetail(OrderDetail orderDetail)
+        public ActionResult RemoveOrderDetail(int orderId, OrderDetail orderDetail)
         {
             return Ok("Your product is successfully removed from the order");
         }

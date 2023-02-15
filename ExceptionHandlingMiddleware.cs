@@ -1,9 +1,17 @@
 ﻿using OnlineStore.Exceptions;
 using System.Data.SqlClient;
 using System.Net;
+using System.Net.Mime;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace OnlineStore
 {
+    public class Error
+    {
+        public string Message { get; set; }
+        public HttpStatusCode StatusCode { get; set; }
+    }
     public class ExceptionHandlingMiddleware : IMiddleware
     {
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -15,12 +23,12 @@ namespace OnlineStore
             catch (SqlException e)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                await context.Response.WriteAsync(e.Message);
+                await context.Response.WriteAsync(JsonSerializer.Serialize(e.Message));
             }
             catch(RESTException e)
             {
                 context.Response.StatusCode = (int)e.StatusCode;
-                await context.Response.WriteAsync(e.Message);
+                await context.Response.WriteAsync(JsonSerializer.Serialize(e.Message));
             }
             catch (AggregateException e)
             {
@@ -29,19 +37,19 @@ namespace OnlineStore
                     if (exception.GetType().Name == nameof(ArgumentException))
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        await context.Response.WriteAsync(e.Message);
+                        await context.Response.WriteAsync(JsonSerializer.Serialize(e.Message));
                     }
                     else if (exception.GetType().Name == nameof(SqlException))
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        await context.Response.WriteAsync(e.Message);
+                        await context.Response.WriteAsync(JsonSerializer.Serialize(e.Message));
                     }
                 }
             }
             catch (Exception e)
             {
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                await context.Response.WriteAsync(e.Message);
+                await context.Response.WriteAsync(JsonSerializer.Serialize(e.Message));
             }
         }
     }

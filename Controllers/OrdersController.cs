@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineStore.Enums;
 using OnlineStore.Models;
+using OnlineStore.Services;
 
 namespace OnlineStore.Controllers
 {
@@ -8,33 +9,22 @@ namespace OnlineStore.Controllers
     [Route("api/[controller]")]
     public class OrdersController : ControllerBase
     {
-
-        public OrdersController()
+        private readonly OrdersService ordersService;
+        public OrdersController(OrdersService ordersService)
         {
+            this.ordersService = ordersService;
         }
 
         [HttpPost("Create")]
-        public ActionResult CreateOrder(Order order)
+        public async Task<int> CreateOrder(Order order)
         {
-            return Ok("Your order is successfully created");
+            return await this.ordersService.CreateOrder(order);
         }
 
         [HttpGet("{id}")]
-        public Order GetOrder(int id)
+        public async Task<Order> GetOrder(int id)
         {
-            return new Order()
-            {
-                OrderDetails = new List<OrderDetail>()
-                {
-                    new OrderDetail()
-                    {
-                        ProductId = 1,
-                        UserId = 1
-                    }
-                },
-                AddressId = 1,
-                Status = Enums.OrderStatus.InProgress
-            };
+            return await this.ordersService.GetOrder(id);
         }
 
         [HttpPut("Status")]
