@@ -1,4 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.AspNetCore.Mvc;
+using static System.Net.WebRequestMethods;
+using System.Security.Principal;
+using System.Text;
+using OnlineStore.Services;
+using OnlineStore.Models;
 
 namespace OnlineStore.Controllers
 {
@@ -7,13 +14,16 @@ namespace OnlineStore.Controllers
     public class BlobController : ControllerBase
     {
         private const string baseUrl = "https://bakery9.blob.core.windows.net";
-        public BlobController()
+        private readonly IConfiguration configuration;
+        private readonly BlobService blobService;
+        public BlobController(IConfiguration configuration, BlobService blobService)
         {
-
+            this.configuration = configuration;
+            this.blobService = blobService;
         }
 
         [HttpGet("{container}/{blobName}")]
-        public async Task<Stream> GetBlobAsync(string container, string blobName)
+        public async Task<Stream> GetBlob(string container, string blobName)
         {
             var client = new Client();
             var url = baseUrl + $"/{container}/{blobName}";

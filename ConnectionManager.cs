@@ -1,4 +1,7 @@
-﻿using System.Data.SqlClient;
+﻿using Azure.Storage.Blobs;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Auth;
+using System.Data.SqlClient;
 using System.Text;
 
 namespace OnlineStore
@@ -25,12 +28,26 @@ namespace OnlineStore
         public static SqlConnection CreateConnection(IConfiguration configuration)
         {
             SqlConnectionStringBuilder builder = new();
-            builder.DataSource = configuration["ConnectionString:DataSource"];
-            builder.InitialCatalog = configuration["ConnectionString:InitialCatalog"];
-            builder.UserID = configuration["ConnectionString:UserName"];
-            builder.Password = Encoding.UTF8.GetString(Convert.FromBase64String(configuration["ConnectionString:PasswordHash"]));
+            builder.DataSource = configuration["DbConnectionString:DataSource"];
+            builder.InitialCatalog = configuration["DbConnectionString:InitialCatalog"];
+            builder.UserID = configuration["DbConnectionString:UserName"];
+            builder.Password = Encoding.UTF8.GetString(Convert.FromBase64String(configuration["DbConnectionString:PasswordHash"]));
             ConnectionString = builder.ConnectionString;
             return new SqlConnection(ConnectionString);
+        }
+
+        public static BlobContainerClient GetBlobContainerClient(IConfiguration configuration, string container)
+        {
+            var storageCredentials = new StorageCredentials(configuration["BlobConnectionString:AccountName"]
+                                                          , Encoding.UTF8.GetString(Convert.FromBase64String(configuration["BlobConnectionString:AccountKeyHash"])));
+
+            var storageAccount = new CloudStorageAccount(storageCredentials, useHttps:true);
+            var blobServiceClient = new BlobServiceClient(storageAccount.ToString(true));
+            if(!blobServiceClient.GetBlobContainerClient(container).Exists())
+            {
+                blobServiceClient.CreateBlobContainer(container, Azure.Storage.Blobs.Models.PublicAccessType.BlobContainer);
+            }
+            return new BlobContainerClient(storageAccount.ToString(true), container);
         }
     }
 }
