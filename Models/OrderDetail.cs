@@ -1,8 +1,10 @@
-﻿namespace OnlineStore.Models
+﻿using MongoDB.Bson;
+
+namespace OnlineStore.Models
 {
     public class OrderDetail
     {
-        public int ProductId { get; set; }
+        public string ProductId { get; set; }
         public decimal Quantity { get; set; }
     }
 }

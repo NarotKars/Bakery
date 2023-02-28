@@ -1,10 +1,8 @@
-﻿using System.Data;
-using OnlineStore.Models;
-using Dapper;
+﻿using OnlineStore.Models;
 using OnlineStore.Exceptions;
-using System.Data.Common;
-using System.Data.SqlClient;
-using System.Transactions;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using System.Net;
 
 namespace OnlineStore.Services
 {
@@ -21,99 +19,115 @@ namespace OnlineStore.Services
 
         public async Task<IEnumerable<Product>> GetProducts()
         {
-            string sql = "GetProducts";
-            return await ConnectionManager.CreateConnection(configuration)
-                                          .QueryAsync<Product>(sql, commandType: CommandType.StoredProcedure);
+            var mongoDb = ConnectionManager.GetMongoDb(configuration);
+            var collection = mongoDb.GetCollection<Product>("Products");
+            return (await collection.FindAsync(new BsonDocument())).ToEnumerable();
         }
 
-        public async Task<IEnumerable<Product>> GetProductsByCategoryId(int categoryId)
+        public async Task<IEnumerable<Product>> GetProductsByCategoryId(string categoryId)
         {
-            string sql = "GetProducts";
-            return await ConnectionManager.CreateConnection(configuration)
-                                          .QueryAsync<Product>(sql, new { CategoryId = categoryId }, commandType: CommandType.StoredProcedure);
+            var mongoDb = ConnectionManager.GetMongoDb(configuration);
+            var collection = mongoDb.GetCollection<Product>("Products");
+            var filter = Builders<Product>.Filter.Eq(nameof(Product.CategoryId), categoryId);
+            return (await collection.FindAsync(filter)).ToEnumerable();
         }
 
-        public async Task<IEnumerable<Product>> GetProductsByIds(string ids, SqlConnection connection = null, DbTransaction transaction = null)
+        public async Task<IEnumerable<Product>> GetProductsByIds(IEnumerable<string> ids)
         {
-            string sql = "GetProducts";
-            if(connection == null)
-            {
-                connection = ConnectionManager.CreateConnection(configuration);
-            }
-            var product = await connection.QueryAsync<Product>(sql, new { ProductIds = ids }, transaction, commandType: CommandType.StoredProcedure);
-            if(product == default || !product.Any())
-            {
-                throw new RESTException("The specified product(s) are not found", System.Net.HttpStatusCode.NotFound);
-            }
-            return product;
-
+            var mongoDb = ConnectionManager.GetMongoDb(configuration);
+            var collection = mongoDb.GetCollection<Product>("Products");
+            var filter = Builders<Product>.Filter.In(nameof(Product.Id), ids);
+            return (await collection.FindAsync(filter)).ToEnumerable();
         }
 
         public async Task<Product> AddProduct(ProductUploadParams productUploadParams)
         {
             await this.blobService.UploadToBlob(productUploadParams.LocalFilePath, productUploadParams.Container, productUploadParams.BlobName);
-            string sql = "CreateProduct";
-            var parameters = new DynamicParameters();
-            parameters.Add("Container", productUploadParams.Container);
-            parameters.Add("BlobName", productUploadParams.BlobName);
-            parameters.Add("CategoryId", productUploadParams.CategoryId);
-            parameters.Add("Description", productUploadParams.Description);
-            parameters.Add("Price", productUploadParams.Price);
-            parameters.Add("Id", null, DbType.Int32, ParameterDirection.Output);
-            await ConnectionManager.CreateConnection(configuration).ExecuteAsync(sql, parameters, commandType: CommandType.StoredProcedure);
-            return new Product()
+            var product = new Product()
             {
-                Id = parameters.Get<int>("Id"),
                 Container = productUploadParams.Container,
                 BlobName = productUploadParams.BlobName,
                 CategoryId = productUploadParams.CategoryId,
                 Description = productUploadParams.Description,
-                Price = productUploadParams.Price
+                Price = productUploadParams.Price,
+                Quantity = productUploadParams.Quantity
             };
-        }
-
-        public async Task<Product> DeleteProduct(int id)
-        {
-            var product = (await this.GetProductsByIds(id.ToString())).FirstOrDefault();
-            if(product == default)
-            {
-                throw new RESTException("There is no product with the specified id", System.Net.HttpStatusCode.NotFound);
-            }
-            await this.blobService.DeleteFromBlob(product.Container, product.BlobName);
-            var sql = "DeleteProduct";
-            await ConnectionManager.CreateConnection(configuration).ExecuteAsync(sql, new { Id = id }, commandType: CommandType.StoredProcedure);
+            var mongoDb = ConnectionManager.GetMongoDb(configuration);
+            var collection = mongoDb.GetCollection<Product>("Products");
+            await collection.InsertOneAsync(product);
             return product;
         }
 
-        public async Task<Product> UpdateProduct(int id, ProductUploadParams productUploadParams)
+        public async Task<Product> DeleteProduct(string id)
         {
-            var product = (await this.GetProductsByIds(id.ToString())).FirstOrDefault();
+            var mongoDb = ConnectionManager.GetMongoDb(configuration);
+            var collection = mongoDb.GetCollection<Product>("Products");
+            var filter = Builders<Product>.Filter.Eq(nameof(Product.Id), id);
+            var product = (await collection.FindAsync(filter)).FirstOrDefault();
             if (product == default)
             {
                 throw new RESTException("There is no product with the specified id", System.Net.HttpStatusCode.NotFound);
             }
             await this.blobService.DeleteFromBlob(product.Container, product.BlobName);
+            await collection.DeleteOneAsync(filter);
+            return product;
+        }
+
+        public async Task UpdateProduct(string id, ProductUploadParams productUploadParams)
+        {
+            var mongoDb = ConnectionManager.GetMongoDb(configuration);
+            var collection = mongoDb.GetCollection<Product>("Products");
+            var filter = Builders<Product>.Filter.Eq(nameof(Product.Id), id);
+            var product = (await collection.FindAsync(filter)).FirstOrDefault();
+            if (product == default)
+            {
+                throw new RESTException("There is no product with the specified id", System.Net.HttpStatusCode.NotFound);
+            }
+
+            await this.blobService.DeleteFromBlob(product.Container, product.BlobName);
             await this.blobService.UploadToBlob(productUploadParams.LocalFilePath, productUploadParams.Container, productUploadParams.BlobName);
 
-            string sql = "UpdateProduct";
-            var parameters = new DynamicParameters();
-            parameters.Add("Container", productUploadParams.Container);
-            parameters.Add("BlobName", productUploadParams.BlobName);
-            parameters.Add("CategoryId", productUploadParams.CategoryId);
-            parameters.Add("Description", productUploadParams.Description);
-            parameters.Add("Price", productUploadParams.Price);
-            parameters.Add("Id", id);
-            await ConnectionManager.CreateConnection(configuration).ExecuteAsync(sql, parameters , commandType: CommandType.StoredProcedure);
-            return new Product()
-            {
-                Id = id,
-                Container = productUploadParams.Container,
-                BlobName = productUploadParams.BlobName,
-                CategoryId = productUploadParams.CategoryId,
-                Description = productUploadParams.Description,
-                Price = productUploadParams.Price
-            };
+            var update = Builders<Product>.Update.Set(nameof(Product.Container), productUploadParams.Container)
+                                                 .Set(nameof(Product.BlobName), productUploadParams.BlobName);
 
+            if (product.CategoryId != productUploadParams.CategoryId)
+            {
+                update = update.Set(nameof(Product.CategoryId), productUploadParams.CategoryId);
+            }
+
+            if(product.Description != productUploadParams.Description)
+            {
+                update = update.Set(nameof(Product.Description), productUploadParams.Description);
+            }
+
+            if (product.Price != productUploadParams.Price)
+            {
+                update = update.Set(nameof(Product.Price), productUploadParams.Price);
+            }
+
+            if (product.Quantity != productUploadParams.Quantity)
+            {
+                update = update.Set(nameof(Product.Quantity), productUploadParams.Quantity);
+            }
+
+            await collection.UpdateOneAsync(filter, update);
+        }
+
+        public void CheckProductsAvailability(List<OrderDetail> orderDetails, IEnumerable<Product> products)
+        {
+            foreach (var orderDetail in orderDetails)
+            {
+                var product = products.Where(p => p.Id == orderDetail.ProductId).FirstOrDefault();
+                if (product == null)
+                {
+                    throw new RESTException($"There is no product with the specified {orderDetail.ProductId} id", HttpStatusCode.NotFound);
+                }
+
+                if (product.Quantity < orderDetail.Quantity)
+                {
+                    throw new RESTException($"{product.Id} product is not available. \r\n available quantity - {product.Quantity} \r\n ordered quantity - {orderDetail.Quantity}", HttpStatusCode.NotFound);
+                }
+            }
         }
     }
 }

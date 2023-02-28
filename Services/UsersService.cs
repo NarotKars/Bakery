@@ -39,9 +39,12 @@ namespace OnlineStore.Services
 
             sql = "RegisterUser";
             var parameters = new DynamicParameters();
-            parameters.Add("UserName", user.UserName);
-            parameters.Add("PasswordHash", user.PasswordHash);
-            parameters.Add("Id", id, DbType.Int32, ParameterDirection.Output);
+            parameters.Add("@UserName", user.UserName);
+            parameters.Add("@PasswordHash", user.PasswordHash);
+            parameters.Add("@Email", user.Email);
+            parameters.Add("@PhoneNumber", user.PhoneNumber);
+            parameters.Add("@Address", user.Address);
+            parameters.Add("@Id", id, DbType.Int32, ParameterDirection.Output);
             await ConnectionManager.CreateConnection(configuration)
                                    .ExecuteAsync(sql, parameters, commandType: CommandType.StoredProcedure);
             return parameters.Get<int>("Id");

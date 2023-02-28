@@ -16,13 +16,13 @@ namespace OnlineStore.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<int> CreateOrder(Order order)
+        public async Task<string> CreateOrder(OrderStoreParams order)
         {
             return await this.ordersService.CreateOrder(order);
         }
 
         [HttpGet("{id}")]
-        public async Task<Order> GetOrder(int id)
+        public async Task<Order> GetOrder(string id)
         {
             return await this.ordersService.GetOrder(id);
         }

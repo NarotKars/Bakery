@@ -1,6 +1,6 @@
-﻿using System.Data;
-using OnlineStore.Models;
-using Dapper;
+﻿using OnlineStore.Models;
+using MongoDB.Driver;
+using MongoDB.Bson;
 
 namespace OnlineStore.Services
 {
@@ -13,18 +13,19 @@ namespace OnlineStore.Services
             this.configuration = configuration;
         }
 
-        public async Task<IEnumerable<Category>> GetCategoriesAsync()
+        public async Task<IEnumerable<Category>> GetCategories()
         {
-            string sql = "GetCategories";
-            return await ConnectionManager.CreateConnection(configuration)
-                                          .QueryAsync<Category>(sql, commandType: CommandType.StoredProcedure);
+            var mongoDb = ConnectionManager.GetMongoDb(configuration);
+            var collection = mongoDb.GetCollection<Category>("Categories");
+            return (await collection.FindAsync(new BsonDocument())).ToEnumerable();
         }
 
-        public async Task<Category> GetCategoryById(int id)
+        public async Task<Category> GetCategoryById(string id)
         {
-            string sql = "GetCategories";
-            return await ConnectionManager.CreateConnection(configuration)
-                                          .QuerySingleOrDefaultAsync<Category>(sql, new { Id = id }, commandType: CommandType.StoredProcedure);
+            var mongoDb = ConnectionManager.GetMongoDb(configuration);
+            var collection = mongoDb.GetCollection<Category>("Products");
+            var filter = Builders<Category>.Filter.Eq(nameof(Category.Id), id);
+            return (await collection.FindAsync(filter)).First();
         }
     }
 }

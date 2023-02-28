@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using OnlineStore.Models;
 using OnlineStore.Services;
 using System.Collections;
@@ -23,15 +24,15 @@ namespace OnlineStore.Controllers
         }
 
         [HttpGet("ByCategory/{id}")]
-        public async Task<IEnumerable<Product>> GetProductsByCategoryId(int id)
+        public async Task<IEnumerable<Product>> GetProductsByCategoryId(string id)
         {
             return await this.productsService.GetProductsByCategoryId(id);
         }
 
         [HttpGet("{id}")]
-        public async Task<Product> GetProductById(int id)
+        public async Task<Product> GetProductById(string id)
         {
-            return (await this.productsService.GetProductsByIds(id.ToString())).First();
+            return (await this.productsService.GetProductsByIds(new List<string>() { id })).First();
         }
 
         [HttpPost("Add")]
@@ -41,15 +42,15 @@ namespace OnlineStore.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<Product> DeleteProduct(int id)
+        public async Task<Product> DeleteProduct(string id)
         {
             return await this.productsService.DeleteProduct(id);
         }
 
         [HttpPut("{id}")]
-        public async Task<Product> UpdateProduct(int id, ProductUploadParams productUploadParams)
+        public async Task UpdateProduct(string id, ProductUploadParams productUploadParams)
         {
-            return await this.productsService.UpdateProduct(id, productUploadParams);
+            await this.productsService.UpdateProduct(id, productUploadParams);
         }
     }
 }

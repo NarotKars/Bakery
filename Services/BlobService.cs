@@ -1,9 +1,4 @@
 ﻿using Azure.Storage.Blobs;
-using OnlineStore.Exceptions;
-using OnlineStore.Models;
-using System.ComponentModel;
-using System.IO;
-using System.Text;
 
 namespace OnlineStore.Services
 {

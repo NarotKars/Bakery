@@ -1,7 +1,9 @@
 ﻿using Azure.Storage.Blobs;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
+using MongoDB.Driver;
 using System.Data.SqlClient;
+using System.Security.Authentication;
 using System.Text;
 
 namespace OnlineStore
@@ -48,6 +50,22 @@ namespace OnlineStore
                 blobServiceClient.CreateBlobContainer(container, Azure.Storage.Blobs.Models.PublicAccessType.BlobContainer);
             }
             return new BlobContainerClient(storageAccount.ToString(true), container);
+        }
+
+        public static IMongoDatabase GetMongoDb(IConfiguration configuration)
+        {
+            return GetMongoClient(configuration).GetDatabase("bakery");
+        }
+
+        public static MongoClient GetMongoClient(IConfiguration configuration)
+        {
+            MongoClientSettings settings = MongoClientSettings.FromUrl(
+              new MongoUrl(configuration["MongoDbConnectionString"])
+            );
+            settings.SslSettings =
+              new SslSettings() { EnabledSslProtocols = SslProtocols.Tls12 };
+
+            return new MongoClient(settings);
         }
     }
 }

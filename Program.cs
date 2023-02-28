@@ -24,6 +24,7 @@ builder.Services.AddScoped<ProductsService>();
 builder.Services.AddScoped<UsersService>();
 builder.Services.AddScoped<OrdersService>();
 builder.Services.AddScoped<BlobService>();
+builder.Services.AddScoped<SessionsService>();
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
 
 var app = builder.Build();
