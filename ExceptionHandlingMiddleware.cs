@@ -1,9 +1,7 @@
 ﻿using OnlineStore.Exceptions;
 using System.Data.SqlClient;
 using System.Net;
-using System.Net.Mime;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace OnlineStore
 {
