@@ -29,15 +29,19 @@ namespace OnlineStore
 
         public static SqlConnection CreateConnection(IConfiguration configuration)
         {
+            ConnectionString = CreateConnectionStringSQL(configuration);
+            return new SqlConnection(ConnectionString);
+        }
+
+        public static string CreateConnectionStringSQL(IConfiguration configuration)
+        {
             SqlConnectionStringBuilder builder = new();
             builder.DataSource = configuration["DbConnectionString:DataSource"];
             builder.InitialCatalog = configuration["DbConnectionString:InitialCatalog"];
             builder.UserID = configuration["DbConnectionString:UserName"];
             builder.Password = Encoding.UTF8.GetString(Convert.FromBase64String(configuration["DbConnectionString:PasswordHash"]));
-            ConnectionString = builder.ConnectionString;
-            return new SqlConnection(ConnectionString);
+            return builder.ConnectionString;
         }
-
         public static BlobContainerClient GetBlobContainerClient(IConfiguration configuration, string container)
         {
             var storageCredentials = new StorageCredentials(configuration["BlobConnectionString:AccountName"]

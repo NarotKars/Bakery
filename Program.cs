@@ -1,5 +1,8 @@
+using MongoDB.Driver.Core.Configuration;
 using OnlineStore;
 using OnlineStore.Services;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +30,18 @@ builder.Services.AddScoped<BlobService>();
 builder.Services.AddScoped<SessionsService>();
 builder.Services.AddScoped<ExceptionHandlingMiddleware>();
 
+var appSettings = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json")
+    .Build();
+var sinkOpts = new MSSqlServerSinkOptions { TableName = "Logs", AutoCreateSqlTable = true };
+var logger = new LoggerConfiguration()
+    .WriteTo.MSSqlServer(
+        connectionString: ConnectionManager.CreateConnectionStringSQL(builder.Configuration),
+        sinkOptions: sinkOpts,
+        appConfiguration: appSettings
+    ).CreateLogger();
+builder.Host.UseSerilog(logger);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -35,6 +50,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseSerilogRequestLogging();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseRouting();
 app.UseAuthorization();
