@@ -11,28 +11,30 @@ namespace OnlineStore.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly ProductsService productsService;
+        private readonly ProductsCacheWrapper cacheService;
 
-        public ProductsController(ProductsService productsService)
+        public ProductsController(ProductsService productsService, ProductsCacheWrapper cacheService)
         {
             this.productsService = productsService;
+            this.cacheService = cacheService;
         }
 
         [HttpGet]
         public async Task<IEnumerable<Product>> GetProducts()
         {
-            return await this.productsService.GetProducts();
+            return await this.cacheService.GetProducts();
         }
 
         [HttpGet("ByCategory/{id}")]
         public async Task<IEnumerable<Product>> GetProductsByCategoryId(string id)
         {
-            return await this.productsService.GetProductsByCategoryId(id);
+            return await this.cacheService.GetProductsByCategoryId(id);
         }
 
         [HttpGet("{id}")]
         public async Task<Product> GetProductById(string id)
         {
-            return (await this.productsService.GetProductsByIds(new List<string>() { id })).First();
+            return await this.cacheService.GetProductById(id);
         }
 
         [HttpPost("Add")]

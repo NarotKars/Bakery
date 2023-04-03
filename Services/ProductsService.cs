@@ -17,14 +17,14 @@ namespace OnlineStore.Services
             this.blobService = blobService;
         }
 
-        public async Task<IEnumerable<Product>> GetProducts()
+        public async Task<IEnumerable<Product>> GetProductsFromDb()
         {
             var mongoDb = ConnectionManager.GetMongoDb(configuration);
             var collection = mongoDb.GetCollection<Product>("Products");
             return (await collection.FindAsync(new BsonDocument())).ToEnumerable();
         }
 
-        public async Task<IEnumerable<Product>> GetProductsByCategoryId(string categoryId)
+        public async Task<IEnumerable<Product>> GetProductsByCategoryIdFromDb(string categoryId)
         {
             var mongoDb = ConnectionManager.GetMongoDb(configuration);
             var collection = mongoDb.GetCollection<Product>("Products");
@@ -32,7 +32,7 @@ namespace OnlineStore.Services
             return (await collection.FindAsync(filter)).ToEnumerable();
         }
 
-        public async Task<IEnumerable<Product>> GetProductsByIds(IEnumerable<string> ids)
+        public async Task<IEnumerable<Product>> GetProductsByIdsFromDb(IEnumerable<string> ids)
         {
             var mongoDb = ConnectionManager.GetMongoDb(configuration);
             var collection = mongoDb.GetCollection<Product>("Products");

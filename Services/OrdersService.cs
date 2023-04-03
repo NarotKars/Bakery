@@ -17,7 +17,7 @@ namespace OnlineStore.Services
 
         public async Task<string> CreateOrder(OrderStoreParams orderParams)
         {
-            var products = await this.productsService.GetProductsByIds(orderParams.Details.Select(detail => detail.ProductId));
+            var products = await this.productsService.GetProductsByIdsFromDb(orderParams.Details.Select(detail => detail.ProductId));
             this.productsService.CheckProductsAvailability(orderParams.Details, products);
 
             var client = ConnectionManager.GetMongoClient(configuration);

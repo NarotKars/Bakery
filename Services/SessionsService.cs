@@ -51,7 +51,7 @@ namespace OnlineStore.Services
 
         public async Task AddProductToShoppingCart(OrderDetail orderDetail, string sessionId)
         {
-            var product = (await this.productsService.GetProductsByIds(new List<string>() { orderDetail.ProductId })).FirstOrDefault();
+            var product = (await this.productsService.GetProductsByIdsFromDb(new List<string>() { orderDetail.ProductId })).FirstOrDefault();
             if(product == default)
             {
                 throw new RESTException($"A product with the specified {orderDetail.ProductId} id is not found", System.Net.HttpStatusCode.NotFound);
@@ -78,7 +78,7 @@ namespace OnlineStore.Services
 
         public async Task RemoveProductFromShoppingCart(OrderDetail orderDetail, string sessionId)
         {
-            var product = (await this.productsService.GetProductsByIds(new List<string>() { orderDetail.ProductId })).FirstOrDefault();
+            var product = (await this.productsService.GetProductsByIdsFromDb(new List<string>() { orderDetail.ProductId })).FirstOrDefault();
             if (product == default)
             {
                 throw new RESTException($"A product with the specified {orderDetail.ProductId} id is not found", System.Net.HttpStatusCode.NotFound);

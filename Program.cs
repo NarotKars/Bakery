@@ -2,6 +2,7 @@ using MongoDB.Driver.Core.Configuration;
 using OnlineStore;
 using OnlineStore.Services;
 using Serilog;
+using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHostedService<TimedHostedService>();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
@@ -40,7 +42,11 @@ var logger = new LoggerConfiguration()
         connectionString: ConnectionManager.CreateConnectionStringSQL(builder.Configuration),
         sinkOptions: sinkOpts,
         appConfiguration: appSettings
-    ).CreateLogger();
+    )
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Information)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+Log.CloseAndFlush();
 builder.Host.UseSerilog(logger);
 var app = builder.Build();
 
